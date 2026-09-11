@@ -1,171 +1,96 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <title>Duo Flip</title>
-  <style>
-    :root {
-      --glass: rgba(255,255,255,0.08);
-      --ink: #f4f4f5;
-      --muted: #a1a1aa;
-      --accent: #7dd3fc;
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-    html, body { height: 100%; background: #000; color: var(--ink); font-family: -apple-system, BlinkMacSystemFont, system-ui, sans-serif; overflow: hidden; }
-    body { min-height: 100dvh; }
-    #gate { position: fixed; inset: 0; z-index: 40; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; padding: 32px; background: radial-gradient(ellipse at 50% 20%, #1a2330 0%, #050506 70%); text-align: center; }
-    #gate h1 { font-size: 28px; font-weight: 620; letter-spacing: -0.03em; }
-    #gate p { max-width: 300px; color: var(--muted); font-size: 15px; line-height: 1.45; }
-    #status { max-width: 320px; font-size: 13px; color: #fca5a5; min-height: 1.2em; }
-    button { appearance: none; border: 0; border-radius: 980px; padding: 14px 24px; font: inherit; font-weight: 600; }
-    #enable { margin-top: 6px; color: #061018; background: var(--accent); }
-    #manualStart { color: #fff; background: rgba(255,255,255,0.12); }
-    #hint { position: fixed; bottom: max(56px, calc(env(safe-area-inset-bottom) + 44px)); left: 0; right: 0; z-index: 30; text-align: center; font-size: 12px; letter-spacing: 0.04em; text-transform: uppercase; color: rgba(255,255,255,0.45); pointer-events: none; }
-    .stage { position: fixed; inset: 0; perspective: 900px; background: #000; }
-    .hinge { position: absolute; inset: 0; transform-style: preserve-3d; transform-origin: left center; }
-    .screen { position: absolute; inset: 0; overflow: hidden; backface-visibility: hidden; -webkit-backface-visibility: hidden; }
-    .outer { background: linear-gradient(160deg, #14161c 0%, #0b0c10 55%, #111318 100%); }
-    .inner { background: linear-gradient(160deg, #1c2430 0%, #0e1218 50%, #16202c 100%); transform: rotateY(180deg); }
-    .chrome { position: absolute; inset: 0; padding: max(54px, env(safe-area-inset-top)) 22px 28px; display: flex; flex-direction: column; }
-    .status-row { display: flex; justify-content: space-between; font-size: 13px; font-weight: 580; opacity: 0.72; }
-    .hero { margin-top: 36px; font-size: clamp(34px, 10vw, 48px); font-weight: 650; letter-spacing: -0.045em; line-height: 0.95; }
-    .sub { margin-top: 14px; color: var(--muted); font-size: 16px; max-width: 16em; line-height: 1.4; }
-    .cards { margin-top: auto; display: grid; gap: 10px; }
-    .card { border-radius: 18px; padding: 16px; background: var(--glass); border: 1px solid rgba(255,255,255,0.08); }
-    .card strong { display: block; font-size: 15px; }
-    .card span { display: block; margin-top: 4px; color: var(--muted); font-size: 13px; }
-    .rail { position: absolute; top: 18%; right: 10px; width: 46px; display: flex; flex-direction: column; gap: 10px; }
-    .dot { width: 46px; height: 46px; border-radius: 14px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.1); }
-    .veil { position: absolute; inset: 0; pointer-events: none; background: linear-gradient(90deg, transparent 40%, rgba(0,0,0,0.35) 100%); opacity: 0; }
-    .cal { position: fixed; top: max(12px, env(safe-area-inset-top)); right: 12px; z-index: 25; padding: 8px 12px; font-size: 12px; color: #fff; background: rgba(255,255,255,0.12); }
-    .debug { position: fixed; left: 12px; top: max(12px, env(safe-area-inset-top)); z-index: 25; font-variant-numeric: tabular-nums; font-size: 11px; color: rgba(255,255,255,0.4); }
-    #scrubWrap { position: fixed; left: 16px; right: 16px; bottom: max(12px, env(safe-area-inset-bottom)); z-index: 26; display: none; }
-    #scrubWrap input { width: 100%; accent-color: #7dd3fc; }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
+<title>Duo Flip</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;background:#000;color:#f4f4f5;font-family:-apple-system,system-ui,sans-serif;overflow:hidden}
+body{min-height:100dvh;touch-action:none}
+.stage{position:fixed;inset:0;perspective:900px;background:#000}
+.hinge{position:absolute;inset:0;transform-style:preserve-3d;transform-origin:left center}
+.screen{position:absolute;inset:0;overflow:hidden;backface-visibility:hidden;-webkit-backface-visibility:hidden}
+.outer{background:linear-gradient(160deg,#14161c,#0b0c10 55%,#111318)}
+.inner{background:linear-gradient(160deg,#1c2430,#0e1218 50%,#16202c);transform:rotateY(180deg)}
+.chrome{position:absolute;inset:0;padding:max(54px,env(safe-area-inset-top)) 22px 28px;display:flex;flex-direction:column}
+.row{display:flex;justify-content:space-between;font-size:13px;opacity:.72}
+.hero{margin-top:36px;font-size:clamp(34px,10vw,48px);font-weight:650;letter-spacing:-.045em;line-height:.95}
+.sub{margin-top:14px;color:#a1a1aa;font-size:16px;max-width:16em;line-height:1.4}
+.cards{margin-top:auto;display:grid;gap:10px}
+.card{border-radius:18px;padding:16px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.08)}
+.card span{display:block;margin-top:4px;color:#a1a1aa;font-size:13px}
+.rail{position:absolute;top:18%;right:10px;display:flex;flex-direction:column;gap:10px}
+.dot{width:46px;height:46px;border-radius:14px;background:rgba(255,255,255,.08)}
+.veil{position:absolute;inset:0;pointer-events:none;background:linear-gradient(90deg,transparent 40%,rgba(0,0,0,.35));opacity:0}
+#hud{position:fixed;left:12px;right:12px;top:max(10px,env(safe-area-inset-top));z-index:20;display:flex;justify-content:space-between;align-items:center;font-size:11px;color:rgba(255,255,255,.55);font-variant-numeric:tabular-nums}
+#hint{position:fixed;left:0;right:0;bottom:max(16px,env(safe-area-inset-bottom));z-index:20;text-align:center;font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:rgba(255,255,255,.45);pointer-events:none}
+</style>
 </head>
 <body>
-  <div id="gate">
-    <h1>Duo Flip</h1>
-    <p>Open this in Safari. Tap Enable, allow motion, then tilt like opening a book. Or skip and use the slider.</p>
-    <p id="status"></p>
-    <button id="enable">Enable orientation</button>
-    <button id="manualStart">Skip — use slider</button>
-  </div>
-  <button class="cal" id="calibrate" hidden>Recalibrate</button>
-  <div class="debug" id="debug" hidden></div>
-  <div id="hint">Drag the slider or tilt the phone</div>
-  <div id="scrubWrap"><input id="scrub" type="range" min="0" max="180" value="0" /></div>
-  <div class="stage">
-    <div class="hinge" id="hinge">
-      <section class="screen outer" id="outer">
-        <div class="chrome">
-          <div class="status-row"><span>9:41</span><span>5G</span></div>
-          <div class="hero">Outer<br>display</div>
-          <p class="sub">Closed phone. Compact, one-handed. This is the cover screen.</p>
-          <div class="cards">
-            <div class="card"><strong>Messages</strong><span>See you at 7.</span></div>
-            <div class="card"><strong>Weather</strong><span>Salt Lake · 68°</span></div>
-          </div>
+<div id="hud"><span id="debug">0° drag</span><span>swipe right to open</span></div>
+<div id="hint">Swipe across the screen</div>
+<div class="stage" id="stage">
+  <div class="hinge" id="hinge">
+    <section class="screen outer" id="outer">
+      <div class="chrome">
+        <div class="row"><span>9:41</span><span>5G</span></div>
+        <div class="hero">Outer<br>display</div>
+        <p class="sub">Closed phone. Swipe right like you are opening a book.</p>
+        <div class="cards">
+          <div class="card"><strong>Messages</strong><span>See you at 7.</span></div>
+          <div class="card"><strong>Weather</strong><span>Salt Lake · 68°</span></div>
         </div>
-        <div class="veil" id="outerVeil"></div>
-      </section>
-      <section class="screen inner" id="inner">
-        <div class="chrome">
-          <div class="status-row"><span>9:41</span><span>Duo</span></div>
-          <div class="hero">Inner<br>canvas</div>
-          <p class="sub">Opened. Bigger layout, same content language.</p>
-          <div class="cards">
-            <div class="card"><strong>Split view</strong><span>Mail + Notes side by side</span></div>
-            <div class="card"><strong>Continuity</strong><span>The fold is the interface</span></div>
-          </div>
+      </div>
+      <div class="veil" id="outerVeil"></div>
+    </section>
+    <section class="screen inner" id="inner">
+      <div class="chrome">
+        <div class="row"><span>9:41</span><span>Duo</span></div>
+        <div class="hero">Inner<br>canvas</div>
+        <p class="sub">Opened. Same language, more room.</p>
+        <div class="cards">
+          <div class="card"><strong>Split view</strong><span>Mail + Notes</span></div>
+          <div class="card"><strong>Continuity</strong><span>The fold is the interface</span></div>
         </div>
-        <div class="rail"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
-        <div class="veil" id="innerVeil"></div>
-      </section>
-    </div>
+      </div>
+      <div class="rail"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+      <div class="veil" id="innerVeil"></div>
+    </section>
   </div>
-  <script>
-    const hinge = document.getElementById("hinge");
-    const gate = document.getElementById("gate");
-    const enableBtn = document.getElementById("enable");
-    const manualBtn = document.getElementById("manualStart");
-    const calBtn = document.getElementById("calibrate");
-    const debugEl = document.getElementById("debug");
-    const statusEl = document.getElementById("status");
-    const scrubWrap = document.getElementById("scrubWrap");
-    const scrub = document.getElementById("scrub");
-    const outerVeil = document.getElementById("outerVeil");
-    const innerVeil = document.getElementById("innerVeil");
-    let zeroGamma = 0, liveGyro = false, pendingCalibrate = false;
-    function inAppBrowser() {
-      const ua = navigator.userAgent || "";
-      return /Instagram|FBAN|FBAV|Grok|Twitter|LinkedInApp|Line\//i.test(ua);
-    }
-    function diagnose() {
-      const bits = [];
-      if (!window.isSecureContext) bits.push("Not https.");
-      if (inAppBrowser()) bits.push("In-app browser. Open in Safari.");
-      return bits;
-    }
-    const issues = diagnose();
-    if (issues.length) statusEl.textContent = issues.join(" ");
-    function clamp(n, a, b) { return Math.max(a, Math.min(b, n)); }
-    function applyFold(degrees) {
-      const t = clamp(degrees, 0, 180);
-      hinge.style.transform = "rotateY(" + t + "deg)";
-      const outerAway = clamp(t / 90, 0, 1);
-      const innerAway = clamp((180 - t) / 90, 0, 1);
-      document.getElementById("outer").style.filter = "blur(" + (outerAway * 18) + "px) brightness(" + (1 - outerAway * 0.35) + ")";
-      document.getElementById("inner").style.filter = "blur(" + (innerAway * 18) + "px) brightness(" + (1 - innerAway * 0.25) + ")";
-      outerVeil.style.opacity = String(outerAway * 0.7);
-      innerVeil.style.opacity = String(innerAway * 0.55);
-      debugEl.textContent = t.toFixed(1) + "°" + (liveGyro ? " gyro" : " slider");
-      scrub.value = String(Math.round(t));
-    }
-    function enterExperience() {
-      gate.style.display = "none";
-      calBtn.hidden = false;
-      debugEl.hidden = false;
-      scrubWrap.style.display = "block";
-      applyFold(0);
-    }
-    function onOrient(e) {
-      if (!liveGyro) return;
-      const gamma = (typeof e.gamma === "number") ? e.gamma : 0;
-      if (pendingCalibrate) { zeroGamma = gamma; pendingCalibrate = false; }
-      const rel = gamma - zeroGamma;
-      applyFold(clamp((-rel) / 70, 0, 1) * 180);
-    }
-    async function requestMotion() {
-      if (typeof DeviceMotionEvent !== "undefined" && typeof DeviceMotionEvent.requestPermission === "function") {
-        try { await DeviceMotionEvent.requestPermission(); } catch (e) {}
-      }
-      if (typeof DeviceOrientationEvent !== "undefined" && typeof DeviceOrientationEvent.requestPermission === "function") {
-        return DeviceOrientationEvent.requestPermission();
-      }
-      return "granted";
-    }
-    enableBtn.addEventListener("click", async function () {
-      statusEl.textContent = "";
-      if (!window.isSecureContext) { statusEl.textContent = "Need https in Safari."; return; }
-      if (inAppBrowser()) { statusEl.textContent = "Share sheet → Open in Safari."; return; }
-      let state = "granted";
-      try { state = await requestMotion(); } catch (err) { state = "denied"; statusEl.textContent = String(err); }
-      if (state !== "granted") {
-        statusEl.textContent = "Settings → Safari → Motion & Orientation Access = ON. Then reload.";
-        return;
-      }
-      pendingCalibrate = true;
-      liveGyro = true;
-      window.addEventListener("deviceorientation", onOrient, true);
-      enterExperience();
-    });
-    manualBtn.addEventListener("click", function () { liveGyro = false; enterExperience(); });
-    calBtn.addEventListener("click", function () { pendingCalibrate = true; });
-    scrub.addEventListener("input", function () { liveGyro = false; applyFold(Number(scrub.value)); });
-  </script>
+</div>
+<script>
+const hinge=document.getElementById('hinge');
+const debugEl=document.getElementById('debug');
+const outerVeil=document.getElementById('outerVeil');
+const innerVeil=document.getElementById('innerVeil');
+const stage=document.getElementById('stage');
+function clamp(n,a,b){return Math.max(a,Math.min(b,n))}
+let fold=0;
+function applyFold(deg){
+  fold=clamp(deg,0,180);
+  hinge.style.transform='rotateY('+fold+'deg)';
+  const o=clamp(fold/90,0,1), i=clamp((180-fold)/90,0,1);
+  document.getElementById('outer').style.filter='blur('+(o*18)+'px) brightness('+(1-o*.35)+')';
+  document.getElementById('inner').style.filter='blur('+(i*18)+'px) brightness('+(1-i*.25)+')';
+  outerVeil.style.opacity=String(o*.7);
+  innerVeil.style.opacity=String(i*.55);
+  debugEl.textContent=fold.toFixed(0)+'\u00b0';
+}
+applyFold(0);
+let dragging=false,startX=0,startFold=0;
+function posX(e){return (e.touches&&e.touches[0]?e.touches[0].clientX:e.clientX)}
+stage.addEventListener('touchstart',e=>{dragging=true;startX=posX(e);startFold=fold;},{passive:true});
+stage.addEventListener('mousedown',e=>{dragging=true;startX=posX(e);startFold=fold;});
+function move(e){
+  if(!dragging)return;
+  const dx=posX(e)-startX;
+  applyFold(startFold+(dx/window.innerWidth)*180);
+}
+window.addEventListener('touchmove',move,{passive:true});
+window.addEventListener('mousemove',move);
+window.addEventListener('touchend',()=>dragging=false);
+window.addEventListener('mouseup',()=>dragging=false);
+</script>
 </body>
 </html>
